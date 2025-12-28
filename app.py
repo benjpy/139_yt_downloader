@@ -37,6 +37,10 @@ with col2:
         quality = None
         st.info("Top comments will be saved to a CSV file.")
 
+# Advanced Options (Cookies)
+with st.expander("Advanced Options (Fix 403 Errors)"):
+    cookies_file = st.file_uploader("Upload cookies.txt (Netscape format)", type=["txt"], help="If you get a 403 Forbidden error, upload your YouTube cookies here. You can use extensions like 'Get cookies.txt LOCALLY' to export them.")
+
 # Download Button
 if st.button("Download", use_container_width=True):
     if not url:
@@ -45,6 +49,13 @@ if st.button("Download", use_container_width=True):
         status_text = st.empty()
         progress_bar = st.progress(0)
         
+        # Save cookies if provided
+        cookies_path = None
+        if cookies_file:
+            cookies_path = "cookies.txt"
+            with open(cookies_path, "wb") as f:
+                f.write(cookies_file.getbuffer())
+
         # Callback to update UI from downloader
         def update_progress(percent, text=None):
             progress_bar.progress(percent)
@@ -52,7 +63,11 @@ if st.button("Download", use_container_width=True):
                 status_text.text(text)
 
         with st.spinner("Fetching data..."):
-            result = downloader.download_content("downloads", url, download_type, quality, update_progress)
+            result = downloader.download_content(url, "downloads", download_type, quality, update_progress, cookies_path)
+            
+        # Clean up cookies file
+        if cookies_path and os.path.exists(cookies_path):
+            os.remove(cookies_path)
 
         # Handle Result
         if result['status'] == 'success':

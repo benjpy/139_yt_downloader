@@ -22,6 +22,10 @@ class TestDownloaderOptions(unittest.TestCase):
         opts = downloader.get_yt_dlp_options("downloads", "Video + Audio", quality="Medium (720p)")
         self.assertIn("height<=720", opts['format'])
 
+    def test_options_cookies(self):
+        opts = downloader.get_yt_dlp_options("downloads", "Video + Audio", cookies_path="/tmp/cookies.txt")
+        self.assertEqual(opts.get('cookiefile'), "/tmp/cookies.txt")
+
     @patch('downloader.yt_dlp.YoutubeDL')
     def test_download_content_success_mock(self, mock_ydl):
         # Setup mock

@@ -3,7 +3,7 @@ import re
 import csv
 import yt_dlp
 
-def get_yt_dlp_options(download_path, download_type, quality=None, progress_hook=None):
+def get_yt_dlp_options(download_path, download_type, quality=None, progress_hook=None, cookies_path=None):
     """
     Generate yt-dlp options based on download type and quality.
     """
@@ -14,6 +14,9 @@ def get_yt_dlp_options(download_path, download_type, quality=None, progress_hook
         'default_search': 'auto',
         'source_address': '0.0.0.0',
     }
+    
+    if cookies_path:
+        ydl_opts['cookiefile'] = cookies_path
     
     if progress_hook:
         ydl_opts['progress_hooks'] = [progress_hook]
@@ -55,7 +58,7 @@ def get_yt_dlp_options(download_path, download_type, quality=None, progress_hook
     return ydl_opts
 
 
-def download_content(url, download_path, download_type, quality=None, progress_callback=None):
+def download_content(url, download_path, download_type, quality=None, progress_callback=None, cookies_path=None):
     """
     Main download function.
     Returns a dictionary with result info (status, file_path, message).
@@ -82,7 +85,7 @@ def download_content(url, download_path, download_type, quality=None, progress_c
             elif d['status'] == 'finished':
                 progress_callback(1.0, "Download complete! Processing...")
 
-    ydl_opts = get_yt_dlp_options(download_path, download_type, quality, progress_hook_wrapper)
+    ydl_opts = get_yt_dlp_options(download_path, download_type, quality, progress_hook_wrapper, cookies_path)
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
